@@ -1,0 +1,9 @@
+mkdir S3-LAMBDA-TRIGGER
+cd S3-LAMBDA-TRIGGER
+cdk bootstrap 
+cdk init app --language python
+changed python interpreter to gobal
+pip install -r requirements.txt
+......
+cdk synth
+cdk deploy
