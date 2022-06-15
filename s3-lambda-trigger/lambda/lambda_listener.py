@@ -16,7 +16,7 @@ def copy_func(event, context):
     print ("Mem. limits(MB): ", context.memory_limit_in_mb)
     try:
         s3.copy_object(Bucket=target_bucket, Key=object_key, CopySource=copy_source)
-        print("object has been created and backed up")
+        print("object created successfully")
     except Exception as err:
         print ("Error -"+str(err))
 
@@ -31,7 +31,7 @@ def main(event, context):
             copy_func(event,context)
 
         elif bool(re.search("ObjectRemoved",e['eventName'] )):
-            print ("object deleted")
+            print ("object deleted successfully")
         
     return {
         'statusCode': 200,
