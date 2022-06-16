@@ -39,7 +39,7 @@ def main(event, context):
             SourceArn=f"arn:aws:rds:{os.environ['AWS_REGION']}:{account_id}:{os.environ['DB_SNAPSHOT_TYPE']}:{message['Source ID']}",
             S3BucketName=os.environ["SNAPSHOT_BUCKET_NAME"],
             IamRoleArn=os.environ["SNAPSHOT_TASK_ROLE"],
-            KmsKeyId=os.environ["SNAPSHOT_TASK_KEY"],
+            KmsKeyId=os.environ["SNAPSHOT_TASK_KEY"],#enter rds key
         )
         response["SnapshotTime"] = str(response["SnapshotTime"])
 
