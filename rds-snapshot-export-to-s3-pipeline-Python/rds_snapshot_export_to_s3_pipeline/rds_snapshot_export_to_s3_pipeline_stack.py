@@ -5,16 +5,17 @@ from aws_cdk import (
     aws_iam as iam,
     aws_lambda as awslambda,
     aws_sns_subscriptions as sns_subscription,
+    aws_kms as kms,
     aws_rds as rds,
     aws_s3 as s3,
     aws_sns as sns
 )
 from constructs import Construct
 
+import boto3
 
-# def RdsEventId():
-#     DB_AUTOMATED_SNAPSHOT_CREATED = "RDS-EVENT-0091"
-#     return DB_AUTOMATED_SNAPSHOT_CREATED
+client = boto3.client("sts")
+account_arn = client.get_caller_identity()["Arn"]
 
 
 props={"dbName":"database-1","rdsEventId":"RDS-EVENT-0091"}
@@ -40,17 +41,17 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
                                     resources=[snapshotbucket.bucket_arn,snapshotbucket.bucket_arn+"/*"])
                                     ]))
 
-        lamdarole = iam.Role(self, "lamdarole",
+        lambdarole = iam.Role(self, "lambdarole",
                             
                             description="RdsSnapshotExportToS3 Lambda execution role for the database.",
                             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
 
-        lamdarole.attach_inline_policy(iam.Policy(self,"lambdapolicy",policy_name="lambdaExecutionpolicy",statements=[
+        lambdarole.attach_inline_policy(iam.Policy(self,"lambdapolicy",policy_name="lambdaExecutionpolicy",statements=[
                                 iam.PolicyStatement(actions=["rds:StartExportTask"],resources=["*"]),
                                 iam.PolicyStatement(actions=["iam:PassRole"],resources=[snapshotExportTaskRole.role_arn])
                                 ]))
 
-        lamdarole.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"))
+        lambdarole.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"))
 
         gluecrawlerrole = iam.Role(self, "snapshot_export_gluecrawler_role",
                             
@@ -62,6 +63,79 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
 
         gluecrawlerrole.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole"))
 
+        snapshotExportEncryptionKey=kms.Key(self,"snapshotExportEncryptionKey",alias=props['dbName']+"-snapshot-exports",
+        policy=iam.PolicyDocument.from_json({
+          "Version": "2012-10-17",
+          "Id": "key-default-1",
+          "Statement": [
+            {
+            "Sid": "Enable IAM User Permissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": iam.AccountRootPrincipal().arn
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        }, {
+            "Sid": "Allow access for Key Administrators",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": account_arn
+            },
+            "Action": [
+                "kms:Create*",
+                "kms:Describe*",
+                "kms:Enable*",
+                "kms:List*",
+                "kms:Put*",
+                "kms:Update*",
+                "kms:Revoke*",
+                "kms:Disable*",
+                "kms:Get*",
+                "kms:Delete*",
+                "kms:TagResource",
+                "kms:UntagResource",
+                "kms:ScheduleKeyDeletion",
+                "kms:CancelKeyDeletion"
+            ],
+            "Resource": "*"
+        },
+              {"Sid": "Allow use of the key",
+            "Effect": "Allow",
+                    "Principal" : {
+                        "AWS" : [
+                            iam.AccountRootPrincipal().arn,
+                            lambdarole.role_arn,
+                            gluecrawlerrole.role_arn,
+                            account_arn
+                        ]
+                    },
+                    "Action":["kms:Encrypt",
+                        "kms:Decrypt",
+                        "kms:ReEncrypt*",
+                        "kms:GenerateDataKey*",
+                        "kms:DescribeKey"],
+                    "Resource": "*"
+                },
+                {"Sid": "Allow attachment of persistent resources",
+            "Effect": "Allow",
+                    "Principal":{ 
+                        "AWS" :[lambdarole.role_arn,
+                            iam.AccountRootPrincipal().arn,
+                            account_arn]}, 
+                    "Action": [
+                        "kms:CreateGrant",
+                        "kms:ListGrants",
+                        "kms:RevokeGrant"
+                        ],
+                         "Resource": "*"
+                }
+          ]
+      }
+  
+   ),
+            )
+
         snapshotEventTopic= sns.Topic(self,"SnapshotEventTopic",topic_name="SnapshotEventTopic")
 
         rds.CfnEventSubscription(self,"RdsSnapshotEventNotification",sns_topic_arn=snapshotEventTopic.topic_arn,enabled=True,event_categories=["creation"],source_type="db-snapshot")
@@ -72,20 +146,21 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
                                     handler="lambda_listener.main",
                                     code=awslambda.Code.from_asset("./lambda"),
                                     environment= {
-        "RDS_EVENT_ID": props['rdsEventId'],
-        "DB_NAME": props['dbName'],
-        "LOG_LEVEL": "INFO",
-        "SNAPSHOT_BUCKET_NAME": snapshotbucket.bucket_name,
-        "SNAPSHOT_TASK_ROLE": snapshotExportTaskRole.role_arn,
-        "DB_SNAPSHOT_TYPE": "snapshot",
-         },
-        role=lamdarole)
+                                    "RDS_EVENT_ID": props['rdsEventId'],
+                                    "DB_NAME": props['dbName'],
+                                    "LOG_LEVEL": "INFO",
+                                    "SNAPSHOT_BUCKET_NAME": snapshotbucket.bucket_name,
+                                    "SNAPSHOT_TASK_ROLE": snapshotExportTaskRole.role_arn,
+                                    "SNAPSHOT_TASK_KEY": snapshotExportEncryptionKey.key_arn,
+                                    "DB_SNAPSHOT_TYPE": "snapshot",
+                                     },
+                                    role=lambdarole)
 
 
         snapshotEventTopic.add_subscription(sns_subscription.LambdaSubscription(lambdafunction))
 
 
-        SnapshotExportCrawler=glue.CfnCrawler(self,"SnapshotExportCrawler",
+        glue.CfnCrawler(self,"SnapshotExportCrawler",
             name=props['dbName']+"-rds-snapshot-crawler",
             role=gluecrawlerrole.role_arn,
             
@@ -94,6 +169,6 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
             database_name=props['dbName']
             )
         
-        # SnapshotExportCrawler.schema_change_policy.delete_behavior
+        
 
      
