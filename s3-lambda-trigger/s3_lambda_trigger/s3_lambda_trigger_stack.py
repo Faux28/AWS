@@ -14,7 +14,7 @@ class S3LambdaTriggerStack(Stack):
         super().__init__(scope, id, **kwargs)
 
         iam_role = iam.Role(self, "Role",
-                            role_name="ffi-s3-lambda-trigger-role",
+                            role_name="<role-name>",
                             assumed_by=iam.ServicePrincipal("lambda.amazonaws.com"))
 
         iam_role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSLambdaBasicExecutionRole"))
@@ -23,13 +23,13 @@ class S3LambdaTriggerStack(Stack):
 
 
         function = _lambda.Function(self, "Lambda",
-                                    function_name="ffi-s3-lambda-trigger-function",
+                                    function_name="<lambda-function-name>",
                                     runtime=_lambda.Runtime.PYTHON_3_9,
                                     handler="lambda_listener.main",
                                     code=_lambda.Code.from_asset("./lambda"),
                                     role=iam_role)
 
-        s3 = _s3.Bucket(self, "Bucket",bucket_name="ffi-s3-lambda-trigger-bucket")
+        s3 = _s3.Bucket(self, "Bucket",bucket_name="<bucket-name>")
 
         lambda_trigger = aws_s3_notifications.LambdaDestination(function)
 

@@ -1,51 +1,40 @@
 
 # Welcome to your CDK Python project!
 
-This is a blank project for CDK development with Python.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+1.Create a new directory
+    mkdir S3-LAMBDA-TRIGGER
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+2.Go to the created directory
+    cd S3-LAMBDA-TRIGGER
 
-To manually create a virtualenv on MacOS and Linux:
+3.configure the AWS account
+    aws configure
 
-```
-$ python -m venv .venv
-```
+4.create and activate the virtual environment(windows)
+    python -m venv .venv
+    .venv/bin/activate
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+5.install the required dependencies
+    pip install -r requirements.txt
 
-```
-$ source .venv/bin/activate
-```
+6.create a cdk project in python
+    cdk init app --language python
 
-If you are a Windows platform, you would activate the virtualenv like this:
+7.create a lambda directory
+    mkdir lambda
 
-```
-% .venv\Scripts\activate.bat
-```
+8.copy and paste the code in appropriate files
 
-Once the virtualenv is activated, you can install the required dependencies.
+9.bootstrap your aws account
+    cdk bootstrap
 
-```
-$ pip install -r requirements.txt
-```
+9.synthesize the CloudFormation template for this code.
+    cdk synth
 
-At this point you can now synthesize the CloudFormation template for this code.
+10.deploy the stack in aws
+    cdk deploy
 
-```
-$ cdk synth
-```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
 
 ## Useful commands
 
@@ -54,5 +43,3 @@ command.
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
-
-Enjoy!

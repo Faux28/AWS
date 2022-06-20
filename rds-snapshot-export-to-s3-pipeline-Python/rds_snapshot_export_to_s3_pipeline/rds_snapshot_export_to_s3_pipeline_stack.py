@@ -11,6 +11,7 @@ from aws_cdk import (
     aws_sns as sns
 )
 from constructs import Construct
+from rds_snapshot_export_to_s3_pipeline.Properties import props
 
 import boto3
 
@@ -18,13 +19,13 @@ client = boto3.client("sts")
 account_arn = client.get_caller_identity()["Arn"]
 
 
-props={"dbName":"database-1","rdsEventId":"RDS-EVENT-0091"}
+
 class RdsSnapshotExportToS3PipelineStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str,**kwargs) -> None:
         super().__init__(scope, construct_id,**kwargs)
 
-        snapshotbucket = s3.Bucket(self, "Bucket",bucket_name="ffi-s3-lambda-rds-pipeline-bucket")
+        snapshotbucket = s3.Bucket(self, "Bucket",bucket_name="<bucket-name>")
 
         snapshotExportTaskRole = iam.Role(self, "snapshotExportTaskRole",
                             
@@ -136,12 +137,12 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
    ),
             )
 
-        snapshotEventTopic= sns.Topic(self,"SnapshotEventTopic",topic_name="SnapshotEventTopic")
+        snapshotEventTopic= sns.Topic(self,"SnapshotEventTopic",topic_name="<topic-name>")
 
         rds.CfnEventSubscription(self,"RdsSnapshotEventNotification",sns_topic_arn=snapshotEventTopic.topic_arn,enabled=True,event_categories=["creation"],source_type="db-snapshot")
 
         lambdafunction = awslambda.Function(self, "Lambda",
-                                    function_name="ffi-s3-lambda-rds-pipeline-function",
+                                    function_name="<lambda-function-name>",
                                     runtime=awslambda.Runtime.PYTHON_3_9,
                                     handler="lambda_listener.main",
                                     code=awslambda.Code.from_asset("./lambda"),
