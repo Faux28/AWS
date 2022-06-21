@@ -21,13 +21,13 @@ key=boto3.client("kms")
 RDS_key_ARN=key.list_keys()['Keys'][0]["KeyArn"]
 
 
-props={"dbName":"database-1","rdsEventId":"RDS-EVENT-0091"}
+props={"dbName":"<existing-database-name>","rdsEventId":"RDS-EVENT-0091"} #enter a existing database name
 class RdsSnapshotExportToS3PipelineStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str,**kwargs) -> None:
         super().__init__(scope, construct_id,**kwargs)
 
-        snapshotbucket = s3.Bucket(self, "Bucket",bucket_name="ffi-s3-lambda-rds-pipeline-bucket")
+        snapshotbucket = s3.Bucket(self, "Bucket",bucket_name="<bucket-name>") #enter the bucket name
 
         snapshotExportTaskRole = iam.Role(self, "snapshotExportTaskRole",
                             
