@@ -11,21 +11,23 @@ from aws_cdk import (
     aws_sns as sns
 )
 from constructs import Construct
-from rds_snapshot_export_to_s3_pipeline.Properties import props
 
 import boto3
 
-client = boto3.client("sts")
-account_arn = client.get_caller_identity()["Arn"]
+sts = boto3.client("sts")
+account_arn = sts.get_caller_identity()["Arn"]
+
+key=boto3.client("kms")
+RDS_key_ARN=key.list_keys()['Keys'][0]["KeyArn"]
 
 
-
+props={"dbName":"database-1","rdsEventId":"RDS-EVENT-0091"}
 class RdsSnapshotExportToS3PipelineStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str,**kwargs) -> None:
         super().__init__(scope, construct_id,**kwargs)
 
-        snapshotbucket = s3.Bucket(self, "Bucket",bucket_name="<bucket-name>")
+        snapshotbucket = s3.Bucket(self, "Bucket",bucket_name="ffi-s3-lambda-rds-pipeline-bucket")
 
         snapshotExportTaskRole = iam.Role(self, "snapshotExportTaskRole",
                             
@@ -64,6 +66,11 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
 
         gluecrawlerrole.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole"))
 
+        """""""""
+        for customer managed key
+        # it is a paid service
+        """""""""      
+        """ 
         snapshotExportEncryptionKey=kms.Key(self,"snapshotExportEncryptionKey",alias=props['dbName']+"-snapshot-exports",
         policy=iam.PolicyDocument.from_json({
           "Version": "2012-10-17",
@@ -136,13 +143,14 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
   
    ),
             )
+            """
 
-        snapshotEventTopic= sns.Topic(self,"SnapshotEventTopic",topic_name="<topic-name>")
+        snapshotEventTopic= sns.Topic(self,"SnapshotEventTopic",topic_name="SnapshotEventTopic")
 
         rds.CfnEventSubscription(self,"RdsSnapshotEventNotification",sns_topic_arn=snapshotEventTopic.topic_arn,enabled=True,event_categories=["creation"],source_type="db-snapshot")
 
         lambdafunction = awslambda.Function(self, "Lambda",
-                                    function_name="<lambda-function-name>",
+                                    function_name="ffi-s3-lambda-rds-pipeline-function",
                                     runtime=awslambda.Runtime.PYTHON_3_9,
                                     handler="lambda_listener.main",
                                     code=awslambda.Code.from_asset("./lambda"),
@@ -152,7 +160,7 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
                                     "LOG_LEVEL": "INFO",
                                     "SNAPSHOT_BUCKET_NAME": snapshotbucket.bucket_name,
                                     "SNAPSHOT_TASK_ROLE": snapshotExportTaskRole.role_arn,
-                                    "SNAPSHOT_TASK_KEY": snapshotExportEncryptionKey.key_arn,
+                                    "SNAPSHOT_TASK_KEY": RDS_key_ARN,
                                     "DB_SNAPSHOT_TYPE": "snapshot",
                                      },
                                     role=lambdarole)
@@ -169,7 +177,4 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
             path=snapshotbucket.bucket_name,)]),
             database_name=props['dbName']
             )
-        
-        
-
-     
+    
