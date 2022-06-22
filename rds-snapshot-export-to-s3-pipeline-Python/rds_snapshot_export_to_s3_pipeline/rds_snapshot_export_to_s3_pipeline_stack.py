@@ -12,16 +12,8 @@ from aws_cdk import (
 )
 from constructs import Construct
 
-import boto3
+from Properties import props, RDS_key_ARN, account_arn
 
-sts = boto3.client("sts")
-account_arn = sts.get_caller_identity()["Arn"]
-
-key=boto3.client("kms")
-RDS_key_ARN=key.list_keys()['Keys'][0]["KeyArn"]
-
-
-props={"dbName":"<existing-database-name>","rdsEventId":"RDS-EVENT-0091"} #enter a existing database name
 class RdsSnapshotExportToS3PipelineStack(Stack):
 
     def __init__(self, scope: Construct, construct_id: str,**kwargs) -> None:
