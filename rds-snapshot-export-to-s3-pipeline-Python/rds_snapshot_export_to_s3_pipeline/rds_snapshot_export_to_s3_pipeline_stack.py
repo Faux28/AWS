@@ -12,7 +12,7 @@ from aws_cdk import (
 )
 from constructs import Construct
 
-from Properties import props, RDS_key_ARN, account_arn
+from Properties import props, account_arn
 
 class RdsSnapshotExportToS3PipelineStack(Stack):
 
