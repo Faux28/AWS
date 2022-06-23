@@ -59,7 +59,7 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
         gluecrawlerrole.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole"))
 
         """""""""
-        it is a paid service
+        Customer managed key is a paid service
         """""""""      
         
         snapshotExportEncryptionKey=kms.Key(self,"snapshotExportEncryptionKey",alias=props['dbName']+"-snapshot-exports",
@@ -150,7 +150,7 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
                                     "LOG_LEVEL": "INFO",
                                     "SNAPSHOT_BUCKET_NAME": snapshotbucket.bucket_name,
                                     "SNAPSHOT_TASK_ROLE": snapshotExportTaskRole.role_arn,
-                                    "SNAPSHOT_TASK_KEY": RDS_key_ARN,
+                                    "SNAPSHOT_TASK_KEY": snapshotExportEncryptionKey.role_arn,
                                     "DB_SNAPSHOT_TYPE": "snapshot",
                                      },
                                     role=lambdarole)
