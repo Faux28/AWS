@@ -1,5 +1,5 @@
 import boto3
-import re
+
 
 sts = boto3.client("sts")
 account_arn = sts.get_caller_identity()["Arn"]
