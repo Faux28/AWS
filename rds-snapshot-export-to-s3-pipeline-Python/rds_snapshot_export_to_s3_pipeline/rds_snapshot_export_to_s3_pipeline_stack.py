@@ -59,10 +59,9 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
         gluecrawlerrole.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("service-role/AWSGlueServiceRole"))
 
         """""""""
-        for customer managed key
-        # it is a paid service
+        it is a paid service
         """""""""      
-        """ 
+        
         snapshotExportEncryptionKey=kms.Key(self,"snapshotExportEncryptionKey",alias=props['dbName']+"-snapshot-exports",
         policy=iam.PolicyDocument.from_json({
           "Version": "2012-10-17",
@@ -135,8 +134,7 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
   
    ),
             )
-            """
-
+            
         snapshotEventTopic= sns.Topic(self,"SnapshotEventTopic",topic_name="SnapshotEventTopic")
 
         rds.CfnEventSubscription(self,"RdsSnapshotEventNotification",sns_topic_arn=snapshotEventTopic.topic_arn,enabled=True,event_categories=["creation"],source_type="db-snapshot")
