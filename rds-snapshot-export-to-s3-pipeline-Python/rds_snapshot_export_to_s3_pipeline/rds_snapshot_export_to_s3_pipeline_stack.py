@@ -150,7 +150,7 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
                                     "LOG_LEVEL": "INFO",
                                     "SNAPSHOT_BUCKET_NAME": snapshotbucket.bucket_name,
                                     "SNAPSHOT_TASK_ROLE": snapshotExportTaskRole.role_arn,
-                                    "SNAPSHOT_TASK_KEY": snapshotExportEncryptionKey.role_arn,
+                                    "SNAPSHOT_TASK_KEY": snapshotExportEncryptionKey.key_arn,
                                     "DB_SNAPSHOT_TYPE": "snapshot",
                                      },
                                     role=lambdarole)
