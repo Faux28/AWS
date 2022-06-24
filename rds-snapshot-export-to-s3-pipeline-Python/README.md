@@ -27,10 +27,10 @@
     ```
 
 5.install the required dependencies.
-  
-    ```
-    pip install -r requirements.txt
-    ```
+
+```
+pip install -r requirements.txt
+```
 
 6.create a cdk project in python  
     ```
