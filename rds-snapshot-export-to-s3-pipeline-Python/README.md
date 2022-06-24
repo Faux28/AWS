@@ -43,3 +43,10 @@
  * `cdk deploy`      deploy this stack to your default AWS account/region
  * `cdk diff`        compare deployed stack with current state
  * `cdk docs`        open CDK documentation
+
+
+## To Test the code use event.json
+ 
+ * enter the snapshot name
+ * configure the test event in aws console
+ * test the code
