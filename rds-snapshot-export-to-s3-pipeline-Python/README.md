@@ -19,12 +19,12 @@
     ```
 
 4.create and activate the virtual environment(windows)  
-    ```
-    python -m venv .venv
-    ```  
-    ```
-    .venv/bin/activate
-    ```
+```
+python -m venv .venv
+```  
+```
+.venv/bin/activate
+```
 
 5.install the required dependencies.
 
