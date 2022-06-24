@@ -10,31 +10,31 @@
     cd rds-snapshot-export-to-s3-pipeline-Python
 
 3.configure the AWS account  
-    aws configure
+    'aws configure'
 
 4.create and activate the virtual environment(windows)  
-    python -m venv .venv
-    .venv/bin/activate
+    'python -m venv .venv'  
+    '.venv/bin/activate'
 
-5.install the required dependencies
-    pip install -r requirements.txt
+5.install the required dependencies  
+    'pip install -r requirements.txt'
 
-6.create a cdk project in python
-    cdk init app --language python
+6.create a cdk project in python  
+    'cdk init app --language python'
 
-7.create a lambda directory
-    mkdir lambda
+7.create a lambda directory  
+    'mkdir lambda'
 
-8.copy and paste the code in appropriate files
+8.copy and paste the code in appropriate files  
 
-9.bootstrap your aws account
-    cdk bootstrap
+9.bootstrap your aws account  
+    'cdk bootstrap'
 
-9.synthesize the CloudFormation template for this code.
-    cdk synth
+9.synthesize the CloudFormation template for this code  
+    'cdk synth'
 
-10.deploy the stack in aws
-    cdk deploy
+10.deploy the stack in aws  
+    'cdk deploy'
 
 
 ## Useful commands
