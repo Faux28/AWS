@@ -50,3 +50,8 @@
  * enter the snapshot name
  * configure the test event in aws console
  * test the code
+
+
+## Glue Crawler 
+
+ * Crawler should be run manually by user when required
