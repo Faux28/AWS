@@ -57,3 +57,7 @@
 
  * Crawler should be run manually by user when required  
  it is a paid service
+
+```
+$ cdk synth
+```
