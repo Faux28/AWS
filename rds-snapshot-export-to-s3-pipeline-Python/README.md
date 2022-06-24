@@ -1,5 +1,5 @@
 
-## Welcome to your CDK Python project!
+# Welcome to your CDK Python project!
 
 ## Steps to create cdk stack to export rds snapshot to s3
 
