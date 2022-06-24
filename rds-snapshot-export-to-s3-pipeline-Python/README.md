@@ -63,7 +63,6 @@ cdk synth
 ```
 
 10.deploy the stack in aws  
-
  ```
  cdk deploy
  ```
