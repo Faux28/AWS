@@ -48,12 +48,12 @@
 
 ## To Test the code use event.json
  
- * enter the snapshot name
- * configure the test event in aws console
- * test the code
+ * enter the snapshot name.
+ * configure the test event in aws console.
+ * test the code.
 
 
 ## Glue Crawler 
 
- * Crawler should be run manually by user when required  
- it is a paid service
+ * Crawler should be run manually by user when required.  
+ it is a paid service.
