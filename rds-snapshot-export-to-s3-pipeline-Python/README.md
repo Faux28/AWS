@@ -3,16 +3,16 @@
 
 ## Steps to create cdk stack to export rds snapshot to s3
 
-1.Create a new directory
+1.Create a new directory  
     mkdir rds-snapshot-export-to-s3-pipeline-Python
     
-2.Go to the created directory
+2.Go to the created directory  
     cd rds-snapshot-export-to-s3-pipeline-Python
 
-3.configure the AWS account
+3.configure the AWS account  
     aws configure
 
-4.create and activate the virtual environment(windows)
+4.create and activate the virtual environment(windows)  
     python -m venv .venv
     .venv/bin/activate
 
