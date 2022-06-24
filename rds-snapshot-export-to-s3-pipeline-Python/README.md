@@ -1,6 +1,7 @@
 
-# Welcome to your CDK Python project!
+## Welcome to your CDK Python project!
 
+## Steps to create cdk stack to export rds snapshot to s3
 
 1.Create a new directory
     mkdir rds-snapshot-export-to-s3-pipeline-Python
