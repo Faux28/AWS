@@ -164,7 +164,7 @@ class RdsSnapshotExportToS3PipelineStack(Stack):
             role=gluecrawlerrole.role_arn,
             
             targets=glue.CfnCrawler.TargetsProperty(s3_targets=[glue.CfnCrawler.S3TargetProperty(
-            path=snapshotbucket.bucket_name,)]),
+            path=snapshotbucket.bucket_name,exclusions=["*.json"])]),
             database_name=props['dbName']
             )
     
